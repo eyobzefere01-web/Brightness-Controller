@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Brightness{% endblock %}
+
+{% block style %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/index.css') }}">
+{% endblock %}
+
+{% block main %}
+
+  <!-- Get the Admin password -->
+  <form class="reg_db_password disappear" method="post">
+    <h1>Enter Admin Password</h1>
+    <div>
+      <input type="text" name="user-password" placeholder="Password" id="user-password">
+      <input type="submit" value="Send">
+    </div>
+  </form>
+
+  <!-- the main page -->
+  <div class="main-container">
+    <div class="title"><p>Adjust the Brightness</p></div>
+    <div style="background-color: beige;">
+      <form id="brightness-form" method="post">
+        <label style="font-size: 0.95rem;">Brightness: </label>
+        <input type="text" name="brightness-level" placeholder="Only integer!" style="
+        border: gray 0.5px dashed;
+        width: 100px;
+        height: 20px;
+        font-family: 'Times New Roman', Times, serif;
+        " min="1" max="100" required>
+        <input type="submit" value="Change" id="change">
+      </form>
+      <p class="message"></p>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}
