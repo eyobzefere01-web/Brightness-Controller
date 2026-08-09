@@ -22,7 +22,15 @@ form.addEventListener('submit', async (e) => {
         body: passwordData
       });
       const validation_res = await send_password.json()
+      main_container.classList.remove('disappear');
+      reg_page.classList.add('disappear');
+      
       if (validation_res.status == 'error'){
+        msg.classList.add('error');
+        msg.textContent = validation_res.message;
+      }
+      else{
+        msg.classList.add('successful');
         msg.textContent = validation_res.message;
       }
     })

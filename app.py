@@ -5,7 +5,7 @@ import os
 
 app = Flask(__name__)
 db = inp.Database(os.getcwd())
-
+db.create_table()
 
 @app.route('/')
 def index():
@@ -24,7 +24,6 @@ def adjust_brightness():
     )
 
   # check if there is a recorded sudo password
-  db.create_table()
   passwd = db.get_password()
   if passwd is None:
     return jsonify(
@@ -42,7 +41,8 @@ def adjust_brightness():
 @app.route('/rec_sudo', methods=['POST'])
 def rec_sudo():
   user_password = request.form.get('user-password')
-  if not (user_password):
+  valid = inp.Input_validator(brightness_level=1).valid_sudo(password=user_password)
+  if not (valid):
       return jsonify({
         "status": "error", 
         "message": "Incorrect sudo password!"
