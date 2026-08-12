@@ -32,15 +32,13 @@ jobs:
             gir1.2-webkit2-4.1 \
             python3-gi \
             python3-gi-cairo \
-            python3-pycairo
+            python3-cairo
 
       - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
-          # Use wheel binaries or fallback to system python-gi without triggering source compilation
-          pip install --only-binary=:all: "PyGObject==3.48.2" || pip install --no-build-isolation "PyGObject==3.48.2"
-          pip install nuitka flask pywebview
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install --break-system-packages nuitka flask pywebview PyGObject
+          if [ -f requirements.txt ]; then pip install --break-system-packages -r requirements.txt; fi
 
       - name: Compile Application with Nuitka
         run: |
