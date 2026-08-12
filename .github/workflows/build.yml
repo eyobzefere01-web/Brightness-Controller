@@ -3,16 +3,19 @@ on:
   push:
     branches: [ "main", "master" ]
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
       - name: Install Linux System Dependencies
         run: |
           sudo apt-get update
@@ -21,19 +24,22 @@ jobs:
             patchelf \
             ccache \
             pkg-config \
+            python3-dev \
             libcairo2-dev \
-            libgirepository-2.0-dev \
+            libgirepository1.0-dev \
             gir1.2-gtk-3.0 \
             gir1.2-webkit2-4.1 \
             python3-gi \
             python3-gi-cairo \
             python3-cairo \
             imagemagick
+
       - name: Install Python Dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
           pip install nuitka flask pywebview PyGObject
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
       - name: Compile Application with Nuitka
         run: |
           python -m nuitka \
@@ -45,6 +51,7 @@ jobs:
             --include-data-dir=static=static \
             --output-filename=brightness-controller \
             GUI.py
+
       - name: Upload Binary Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -58,7 +65,7 @@ jobs:
           cp brightness-controller "$APPDIR/usr/bin/brightness-controller"
           chmod +x "$APPDIR/usr/bin/brightness-controller"
 
-          # Use repo icon if you have one at assets/icon.png, otherwise generate a placeholder
+          # Use repo icon if present, otherwise generate a placeholder
           if [ -f assets/icon.png ]; then
             cp assets/icon.png "$APPDIR/brightness-controller.png"
           else
@@ -86,8 +93,8 @@ jobs:
 
       - name: Download linuxdeploy and GTK plugin
         run: |
-          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -O linuxdeploy
-          wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-gtk/releases/download/continuous/linuxdeploy-plugin-gtk.sh -O linuxdeploy-plugin-gtk.sh
+          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/1-continuous/linuxdeploy-x86_64.AppImage -O linuxdeploy
+          wget -q https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh -O linuxdeploy-plugin-gtk.sh
           chmod +x linuxdeploy linuxdeploy-plugin-gtk.sh
 
       - name: Build AppImage with bundled GTK/WebKit
