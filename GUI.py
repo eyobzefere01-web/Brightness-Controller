@@ -15,7 +15,9 @@ if __name__ == '__main__':
         'Brightness Controller', 
         'http://127.0.0.1:4501',
         min_size=(800, 700),
-        zoomable=False
+        zoomable=False,
+        fullscreen=False,
+        frameless=False
     )
     
-    webview.start(gui='qt')
+    webview.start()

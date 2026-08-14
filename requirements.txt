@@ -14,6 +14,8 @@ proxy-tools==0.1.0
 pyqt6==6.11.0
 pyqt6-qt6==6.11.1
 pyqt6-sip==13.12.0
+pyqt6-webengine==6.11.0
+pyqt6-webengine-qt6==6.11.1
 pywebview==6.2.1
 qtpy==2.4.3
 typing-extensions==4.16.0

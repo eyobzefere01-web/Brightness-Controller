@@ -1,0 +1,60 @@
+name: Build with Nuitka
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.11']
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install nuitka ordered-set
+
+    - name: Install Nuitka build requirements (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential
+
+    - name: Compile with Nuitka
+      run: |
+        python -m nuitka \
+          --onefile \
+          --follow-imports \
+          --include-package=flask \
+          --include-package=webview \
+          --output-dir=dist \
+          GUI.py
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: brightness-controller-${{ matrix.os }}
+        path: dist/
+
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/**
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
