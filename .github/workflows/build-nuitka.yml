@@ -3,16 +3,17 @@ name: Build with Nuitka
 on:
   push:
     branches: [ main, master ]
+    tags:
+      - 'v*'
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
+  build-linux-deb:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ['3.11']
 
     steps:
@@ -23,17 +24,16 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential debhelper
+
+    - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install nuitka ordered-set
-
-    - name: Install Nuitka build requirements (Ubuntu)
-      if: runner.os == 'Linux'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential
 
     - name: Compile with Nuitka
       run: |
@@ -42,19 +42,46 @@ jobs:
           --follow-imports \
           --include-package=flask \
           --include-package=webview \
-          --output-dir=dist \
+          --include-package=qtpy \
+          --include-package=PyQt6 \
+          --output-dir=build \
           GUI.py
 
-    - name: Upload artifact
+    - name: Create .deb package directory structure
+      run: |
+        mkdir -p deb_package/DEBIAN
+        mkdir -p deb_package/usr/local/bin
+        
+        # Copy compiled binary
+        cp build/GUI deb_package/usr/local/bin/brightness-controller
+        chmod +x deb_package/usr/local/bin/brightness-controller
+
+    - name: Create control file
+      run: |
+        cat > deb_package/DEBIAN/control << 'EOF'
+        Package: brightness-controller
+        Version: 1.0.0
+        Architecture: amd64
+        Maintainer: Eyob <eyob@example.com>
+        Description: Brightness Controller GUI Application
+         A PyQt6 and Flask-based application for controlling system brightness
+        Depends: libqt6gui6, libqt6core6
+        EOF
+
+    - name: Build .deb package
+      run: |
+        dpkg-deb --build deb_package brightness-controller.deb
+
+    - name: Upload .deb artifact
       uses: actions/upload-artifact@v3
       with:
-        name: brightness-controller-${{ matrix.os }}
-        path: dist/
+        name: brightness-controller-deb
+        path: brightness-controller.deb
 
-    - name: Create Release
+    - name: Create Release with .deb
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        files: dist/**
+        files: brightness-controller.deb
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
