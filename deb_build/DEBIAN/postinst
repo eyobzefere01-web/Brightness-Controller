@@ -1,0 +1,11 @@
+#\!/bin/bash
+set -e
+
+# Install Python dependencies
+if [ -f /opt/brightness-controller/requirements.txt ]; then
+    pip3 install -r /opt/brightness-controller/requirements.txt || true
+fi
+
+echo "Brightness Controller v1.0.1 installed successfully\!"
+echo "Run: brightness-controller"
+exit 0

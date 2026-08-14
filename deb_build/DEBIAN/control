@@ -1,0 +1,10 @@
+Package: brightness-controller
+Version: 1.0.1
+Architecture: all
+Maintainer: Eyob <eyob@example.com>
+Depends: python3 (>= 3.10), python3-pip, libqt6gui6, libqt6core6, libqt6webenginecore6
+Description: Brightness Controller GUI Application
+ A PyQt6 and Flask-based application for controlling system brightness.
+ This package installs the application and its dependencies automatically.
+ Supports both graphical and headless modes.
+Homepage: https://github.com/eyobzefere01-web/Brightness-Controller

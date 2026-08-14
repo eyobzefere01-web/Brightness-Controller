@@ -1,0 +1,8 @@
+#\!/bin/bash
+# Check if display is available
+if [ -z "$DISPLAY" ]; then
+    # No display - use offscreen rendering
+    export QT_QPA_PLATFORM=offscreen
+    export QT_QPA_OFFSCREEN_PRINT_FORMAT=png
+fi
+exec python3 /opt/brightness-controller/GUI.py "$@"
